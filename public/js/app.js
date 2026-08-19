@@ -6,6 +6,7 @@ const API_BASE = '/api';
 
 // Application State
 const state = {
+  currentUser: null,
   patients: [],
   doctors: [],
   appointments: [],
@@ -19,14 +20,138 @@ const state = {
 let overviewChart = null;
 
 // ==========================================
-// INITIALIZATION
+// INITIALIZATION & AUTH CHECK
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initNavigation();
   initMobileMenu();
-  loadAllData();
+  checkAuth();
 });
+
+// ==========================================
+// AUTHENTICATION CONTROLLER
+// ==========================================
+function checkAuth() {
+  const savedUser = localStorage.getItem('medicore_user') || sessionStorage.getItem('medicore_user');
+  if (savedUser) {
+    try {
+      state.currentUser = JSON.parse(savedUser);
+      showAppLayout();
+      loadAllData();
+      return;
+    } catch (e) {
+      localStorage.removeItem('medicore_user');
+      sessionStorage.removeItem('medicore_user');
+    }
+  }
+  showAuthScreen();
+}
+
+function showAuthScreen() {
+  document.getElementById('authScreen').style.display = 'flex';
+  document.getElementById('appLayout').style.display = 'none';
+}
+
+function showAppLayout() {
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('appLayout').style.display = 'flex';
+  updateUserUI();
+}
+
+function updateUserUI() {
+  if (!state.currentUser) return;
+  const user = state.currentUser;
+  
+  // Header User Badge
+  const headerAvatar = document.getElementById('headerUserAvatar');
+  const headerName = document.getElementById('headerUserName');
+  const headerRole = document.getElementById('headerUserRole');
+  if (headerAvatar) headerAvatar.innerText = user.avatar || 'US';
+  if (headerName) headerName.innerText = user.name || user.username;
+  if (headerRole) headerRole.innerText = user.role || 'Staff';
+
+  // Sidebar User Badge
+  const sidebarAvatar = document.getElementById('sidebarUserAvatar');
+  const sidebarName = document.getElementById('sidebarUserName');
+  const sidebarRole = document.getElementById('sidebarUserRole');
+  if (sidebarAvatar) sidebarAvatar.innerText = user.avatar || 'US';
+  if (sidebarName) sidebarName.innerText = user.name || user.username;
+  if (sidebarRole) sidebarRole.innerText = user.role || 'Staff';
+}
+
+async function handleLogin(e) {
+  e.preventDefault();
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const remember = document.getElementById('rememberMe').checked;
+  const alertBox = document.getElementById('authAlert');
+  const submitBtn = document.getElementById('loginSubmitBtn');
+
+  alertBox.style.display = 'none';
+  alertBox.innerText = '';
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Verifying Access...</span>';
+
+  try {
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      throw new Error(data.error || 'Invalid credentials. Please try again.');
+    }
+
+    state.currentUser = data.user;
+    if (remember) {
+      localStorage.setItem('medicore_user', JSON.stringify(data.user));
+    } else {
+      sessionStorage.setItem('medicore_user', JSON.stringify(data.user));
+    }
+
+    showToast(`Welcome back, ${data.user.name}! 👋`, 'success');
+    showAppLayout();
+    await loadAllData();
+  } catch (err) {
+    alertBox.style.display = 'block';
+    alertBox.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${escapeHtml(err.message)}`;
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> <span>Sign In to Dashboard</span>';
+  }
+}
+
+function handleLogout() {
+  localStorage.removeItem('medicore_user');
+  sessionStorage.removeItem('medicore_user');
+  state.currentUser = null;
+  showAuthScreen();
+  showToast('You have been logged out successfully.', 'info');
+}
+
+function fillDemoCreds(user, pass, chipBtn) {
+  document.getElementById('loginUsername').value = user;
+  document.getElementById('loginPassword').value = pass;
+  document.querySelectorAll('.role-chip').forEach(c => c.classList.remove('active'));
+  if (chipBtn) chipBtn.classList.add('active');
+  const alertBox = document.getElementById('authAlert');
+  if (alertBox) alertBox.style.display = 'none';
+}
+
+function togglePasswordVisibility(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+  } else {
+    input.type = 'password';
+    btn.innerHTML = '<i class="fa-solid fa-eye"></i>';
+  }
+}
 
 // ==========================================
 // THEME & NAVIGATION HANDLERS

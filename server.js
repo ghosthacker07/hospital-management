@@ -116,6 +116,64 @@ async function initDB() {
 initDB();
 
 // ==========================================
+// 0. AUTHENTICATION API
+// ==========================================
+const DEFAULT_USERS = [
+  { id: 1, username: 'admin', password: 'password123', name: 'Dr. Administrator', role: 'System Admin', avatar: 'AD' },
+  { id: 2, username: 'doctor', password: 'doctor123', name: 'Dr. Raj Sharma', role: 'Head Physician', avatar: 'RS' },
+  { id: 3, username: 'staff', password: 'staff123', name: 'Rohan Desk Staff', role: 'Hospital Receptionist', avatar: 'RD' }
+];
+
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password are required' });
+    }
+
+    const cleanUser = username.trim().toLowerCase();
+    const user = DEFAULT_USERS.find(u => u.username.toLowerCase() === cleanUser);
+
+    if (user && user.password === password) {
+      return res.json({
+        success: true,
+        message: 'Login successful',
+        user: {
+          id: user.id,
+          username: user.username,
+          name: user.name,
+          role: user.role,
+          avatar: user.avatar
+        },
+        token: `token_${user.id}_${Date.now()}`
+      });
+    }
+
+    // Dynamic flexible fallback login for any user
+    if (password.length >= 4) {
+      const name = username.charAt(0).toUpperCase() + username.slice(1);
+      const initials = name.substring(0, 2).toUpperCase();
+      return res.json({
+        success: true,
+        message: 'Login successful',
+        user: {
+          id: 99,
+          username: cleanUser,
+          name: name,
+          role: 'Hospital Staff',
+          avatar: initials
+        },
+        token: `token_99_${Date.now()}`
+      });
+    }
+
+    return res.status(401).json({ error: 'Invalid username or password (minimum 4 characters required)' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ==========================================
 // 1. PATIENTS API (CRUD)
 // ==========================================
 app.get('/api/patients', async (req, res) => {

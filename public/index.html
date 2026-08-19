@@ -21,7 +21,82 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="dark-theme">
-  <div class="app-layout">
+  
+  <!-- ==================== AUTH / LOGIN SCREEN ==================== -->
+  <div class="auth-screen" id="authScreen">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <div class="auth-logo-icon">
+          <i class="fa-solid fa-heart-pulse"></i>
+        </div>
+        <h2>MediCore Portal</h2>
+        <p>Hospital Operating & Management System</p>
+      </div>
+
+      <!-- Quick Role Switcher Chips -->
+      <div class="role-selector-container">
+        <span class="role-selector-label"><i class="fa-solid fa-id-badge"></i> Quick Demo Login:</span>
+        <div class="role-chips">
+          <button type="button" class="role-chip active" onclick="fillDemoCreds('admin', 'password123', this)">
+            <i class="fa-solid fa-shield-halved"></i> Admin
+          </button>
+          <button type="button" class="role-chip" onclick="fillDemoCreds('doctor', 'doctor123', this)">
+            <i class="fa-solid fa-user-doctor"></i> Doctor
+          </button>
+          <button type="button" class="role-chip" onclick="fillDemoCreds('staff', 'staff123', this)">
+            <i class="fa-solid fa-user-nurse"></i> Staff
+          </button>
+        </div>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="auth-alert" id="authAlert"></div>
+
+        <div class="form-group">
+          <label for="loginUsername">Username *</label>
+          <div class="input-with-icon">
+            <i class="fa-solid fa-user input-icon"></i>
+            <input type="text" id="loginUsername" placeholder="Enter username (e.g. admin)" required autocomplete="username" value="admin">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="loginPassword">Password *</label>
+          <div class="input-with-icon">
+            <i class="fa-solid fa-lock input-icon"></i>
+            <input type="password" id="loginPassword" placeholder="Enter password (e.g. password123)" required autocomplete="current-password" value="password123">
+            <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('loginPassword', this)" aria-label="Toggle Password Visibility">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="auth-options">
+          <label class="checkbox-label">
+            <input type="checkbox" id="rememberMe" checked>
+            <span>Remember credentials</span>
+          </label>
+          <span class="auth-hint-text">Demo password: <code>password123</code></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" id="loginSubmitBtn">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i>
+          <span>Sign In to Dashboard</span>
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        <div class="security-badge">
+          <i class="fa-solid fa-shield-check"></i>
+          <span>HIPAA & TiDB Cloud SSL Encrypted Portal</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MAIN APPLICATION DASHBOARD ==================== -->
+  <div class="app-layout" id="appLayout" style="display: none;">
     
     <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
@@ -77,12 +152,23 @@
       </nav>
 
       <div class="sidebar-footer">
-        <div class="system-status-card">
+        <div class="system-status-card mb-2">
           <div class="status-indicator">
             <span class="pulse-dot"></span>
             <span id="dbStatusText">Checking DB...</span>
           </div>
           <small id="dbModeSub">MySQL / Cloud</small>
+        </div>
+
+        <div class="user-profile-card">
+          <div class="user-avatar" id="sidebarUserAvatar">AD</div>
+          <div class="user-meta">
+            <strong id="sidebarUserName">Dr. Administrator</strong>
+            <span id="sidebarUserRole">System Admin</span>
+          </div>
+          <button class="logout-icon-btn" onclick="handleLogout()" title="Logout">
+            <i class="fa-solid fa-power-off"></i>
+          </button>
         </div>
       </div>
     </aside>
@@ -107,6 +193,18 @@
             </button>
             <button class="btn btn-secondary btn-sm" onclick="openModal('appointmentModal')">
               <i class="fa-solid fa-calendar-plus"></i> <span>Book Slot</span>
+            </button>
+          </div>
+
+          <div class="header-user-badge">
+            <span class="header-avatar" id="headerUserAvatar">AD</span>
+            <div class="header-user-info">
+              <strong id="headerUserName">Admin</strong>
+              <small id="headerUserRole">Admin</small>
+            </div>
+            <button class="btn btn-ghost btn-sm logout-btn" onclick="handleLogout()" title="Sign Out">
+              <i class="fa-solid fa-right-from-bracket"></i>
+              <span>Logout</span>
             </button>
           </div>
 
