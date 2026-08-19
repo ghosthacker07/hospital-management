@@ -1,0 +1,185 @@
+{
+  "patients": [
+    {
+      "patient_id": 1,
+      "patient_name": "Rohan Kumar",
+      "gender": "Male",
+      "age": 25,
+      "phone": "9876543210",
+      "address": "Lucknow"
+    },
+    {
+      "patient_id": 2,
+      "patient_name": "Priya Singh",
+      "gender": "Female",
+      "age": 30,
+      "phone": "9876543211",
+      "address": "Kanpur"
+    },
+    {
+      "patient_id": 3,
+      "patient_name": "Amit Verma",
+      "gender": "Male",
+      "age": 45,
+      "phone": "9876543212",
+      "address": "Azamgarh"
+    },
+    {
+      "patient_id": 4,
+      "patient_name": "Neha Sharma",
+      "gender": "Female",
+      "age": 28,
+      "phone": "9876543213",
+      "address": "Delhi"
+    },
+    {
+      "patient_id": 5,
+      "patient_name": "Vikram Malhotra",
+      "gender": "Male",
+      "age": 52,
+      "phone": "9876543214",
+      "address": "Mumbai"
+    },
+    {
+      "patient_id": 6,
+      "patient_name": "Sanjay Gupta",
+      "gender": "Male",
+      "age": 42,
+      "phone": "9898989898",
+      "address": "Varanasi"
+    }
+  ],
+  "doctors": [
+    {
+      "doctor_id": 1,
+      "doctor_name": "Dr. Raj Sharma",
+      "specialization": "Cardiologist",
+      "phone": "9123456780"
+    },
+    {
+      "doctor_id": 2,
+      "doctor_name": "Dr. Priya Verma",
+      "specialization": "Dermatologist",
+      "phone": "9123456781"
+    },
+    {
+      "doctor_id": 3,
+      "doctor_name": "Dr. Amit Singh",
+      "specialization": "Orthopedic",
+      "phone": "9123456782"
+    },
+    {
+      "doctor_id": 4,
+      "doctor_name": "Dr. Sunita Rao",
+      "specialization": "Neurologist",
+      "phone": "9123456783"
+    },
+    {
+      "doctor_id": 5,
+      "doctor_name": "Dr. Ananya Roy",
+      "specialization": "Pediatrician",
+      "phone": "9123456784"
+    }
+  ],
+  "appointments": [
+    {
+      "appointment_id": 1,
+      "patient_id": 1,
+      "doctor_id": 1,
+      "appointment_date": "2026-08-20",
+      "appointment_time": "10:00:00",
+      "status": "Scheduled"
+    },
+    {
+      "appointment_id": 2,
+      "patient_id": 2,
+      "doctor_id": 2,
+      "appointment_date": "2026-08-21",
+      "appointment_time": "11:30:00",
+      "status": "Scheduled"
+    },
+    {
+      "appointment_id": 3,
+      "patient_id": 3,
+      "doctor_id": 3,
+      "appointment_date": "2026-08-22",
+      "appointment_time": "14:00:00",
+      "status": "Completed"
+    },
+    {
+      "appointment_id": 4,
+      "patient_id": 1,
+      "doctor_id": 2,
+      "appointment_date": "2026-08-25",
+      "appointment_time": "09:00:00",
+      "status": "Scheduled"
+    }
+  ],
+  "billing": [
+    {
+      "bill_id": 1,
+      "patient_id": 1,
+      "amount": 2500,
+      "payment_status": "Paid",
+      "bill_date": "2026-08-19"
+    },
+    {
+      "bill_id": 2,
+      "patient_id": 2,
+      "amount": 1500,
+      "payment_status": "Pending",
+      "bill_date": "2026-08-19"
+    },
+    {
+      "bill_id": 3,
+      "patient_id": 3,
+      "amount": 4800,
+      "payment_status": "Paid",
+      "bill_date": "2026-08-18"
+    }
+  ],
+  "medical_records": [
+    {
+      "record_id": 1,
+      "patient_id": 1,
+      "doctor_id": 1,
+      "diagnosis": "Hypertension Stage 1",
+      "treatment": "Amlodipine 5mg daily & low sodium diet",
+      "record_date": "2026-08-19"
+    },
+    {
+      "record_id": 2,
+      "patient_id": 2,
+      "doctor_id": 2,
+      "diagnosis": "Contact Dermatitis",
+      "treatment": "Hydrocortisone cream & antihistamines",
+      "record_date": "2026-08-18"
+    }
+  ],
+  "appointment_audits": [
+    {
+      "audit_id": 4,
+      "appointment_id": 4,
+      "message": "New appointment created",
+      "created_at": "2026-08-19 16:48:46"
+    },
+    {
+      "audit_id": 1,
+      "appointment_id": 1,
+      "message": "New appointment created",
+      "created_at": "2026-08-19 10:00:00"
+    },
+    {
+      "audit_id": 2,
+      "appointment_id": 2,
+      "message": "New appointment created",
+      "created_at": "2026-08-19 11:30:00"
+    },
+    {
+      "audit_id": 3,
+      "appointment_id": 3,
+      "message": "New appointment created",
+      "created_at": "2026-08-19 14:00:00"
+    }
+  ]
+}

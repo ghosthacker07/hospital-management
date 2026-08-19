@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediCore - Modern Hospital Management System</title>
+  <meta name="description" content="Comprehensive Hospital Management System with Patient, Doctor, Appointment, Billing, Medical Records, and Analytics.">
+  
+  <!-- Google Fonts (Outfit & Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="dark-theme">
+  <div class="app-layout">
+    
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-icon">
+            <i class="fa-solid fa-heart-pulse"></i>
+          </div>
+          <div class="logo-text">
+            <h2>MediCore</h2>
+            <span>Hospital OS</span>
+          </div>
+        </div>
+        <button class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Close Sidebar">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">MAIN MENU</div>
+        <a href="#dashboard" class="nav-item active" data-view="dashboard">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="#patients" class="nav-item" data-view="patients">
+          <i class="fa-solid fa-user-group"></i>
+          <span>Patients</span>
+          <span class="badge" id="navPatientCount">0</span>
+        </a>
+        <a href="#doctors" class="nav-item" data-view="doctors">
+          <i class="fa-solid fa-user-doctor"></i>
+          <span>Doctors</span>
+          <span class="badge" id="navDoctorCount">0</span>
+        </a>
+        <a href="#appointments" class="nav-item" data-view="appointments">
+          <i class="fa-solid fa-calendar-check"></i>
+          <span>Appointments</span>
+          <span class="badge badge-accent" id="navAppointmentCount">0</span>
+        </a>
+        <a href="#billing" class="nav-item" data-view="billing">
+          <i class="fa-solid fa-file-invoice-dollar"></i>
+          <span>Billing & Invoices</span>
+        </a>
+        <a href="#records" class="nav-item" data-view="records">
+          <i class="fa-solid fa-clipboard-prescription"></i>
+          <span>Medical Records</span>
+        </a>
+        <div class="nav-section-title">ANALYTICS & DBMS</div>
+        <a href="#reports" class="nav-item" data-view="reports">
+          <i class="fa-solid fa-database"></i>
+          <span>Reports & Triggers</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="system-status-card">
+          <div class="status-indicator">
+            <span class="pulse-dot"></span>
+            <span id="dbStatusText">Checking DB...</span>
+          </div>
+          <small id="dbModeSub">MySQL / Cloud</small>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="main-content">
+      <!-- TOP HEADER -->
+      <header class="top-header">
+        <div class="header-left">
+          <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle Menu">
+            <i class="fa-solid fa-bars-staggered"></i>
+          </button>
+          <div class="breadcrumb">
+            <span id="currentViewTitle">Dashboard Overview</span>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <div class="quick-actions-bar">
+            <button class="btn btn-primary btn-sm" onclick="openModal('patientModal')">
+              <i class="fa-solid fa-user-plus"></i> <span>Add Patient</span>
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="openModal('appointmentModal')">
+              <i class="fa-solid fa-calendar-plus"></i> <span>Book Slot</span>
+            </button>
+          </div>
+
+          <button class="theme-toggle-btn" id="themeToggleBtn" aria-label="Toggle Dark/Light Mode">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- VIEW CONTAINER -->
+      <div class="content-container">
+        
+        <!-- 1. DASHBOARD VIEW -->
+        <section id="view-dashboard" class="view-section active">
+          <!-- KPI Cards -->
+          <div class="kpi-grid">
+            <div class="kpi-card teal">
+              <div class="kpi-info">
+                <span class="kpi-title">Total Patients</span>
+                <h3 class="kpi-value" id="kpiPatients">0</h3>
+                <span class="kpi-sub"><i class="fa-solid fa-arrow-up"></i> Registered Records</span>
+              </div>
+              <div class="kpi-icon-bg">
+                <i class="fa-solid fa-hospital-user"></i>
+              </div>
+            </div>
+
+            <div class="kpi-card blue">
+              <div class="kpi-info">
+                <span class="kpi-title">Active Doctors</span>
+                <h3 class="kpi-value" id="kpiDoctors">0</h3>
+                <span class="kpi-sub"><i class="fa-solid fa-stethoscope"></i> Specialists on Duty</span>
+              </div>
+              <div class="kpi-icon-bg">
+                <i class="fa-solid fa-user-doctor"></i>
+              </div>
+            </div>
+
+            <div class="kpi-card amber">
+              <div class="kpi-info">
+                <span class="kpi-title">Scheduled Slots</span>
+                <h3 class="kpi-value" id="kpiAppointments">0</h3>
+                <span class="kpi-sub"><i class="fa-regular fa-clock"></i> Active Appointments</span>
+              </div>
+              <div class="kpi-icon-bg">
+                <i class="fa-solid fa-calendar-days"></i>
+              </div>
+            </div>
+
+            <div class="kpi-card purple">
+              <div class="kpi-info">
+                <span class="kpi-title">Total Revenue</span>
+                <h3 class="kpi-value" id="kpiRevenue">₹0</h3>
+                <span class="kpi-sub"><i class="fa-solid fa-receipt"></i> Billed Invoices</span>
+              </div>
+              <div class="kpi-icon-bg">
+                <i class="fa-solid fa-indian-rupee-sign"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts & Overview Grid -->
+          <div class="dashboard-grid">
+            <div class="glass-card chart-card">
+              <div class="card-header">
+                <h3><i class="fa-solid fa-chart-simple"></i> System Activity Overview</h3>
+                <span class="tag">Live Analytics</span>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="overviewChart"></canvas>
+              </div>
+            </div>
+
+            <div class="glass-card live-audits-card">
+              <div class="card-header">
+                <h3><i class="fa-solid fa-bolt"></i> Database Triggers & Audit</h3>
+                <span class="tag tag-accent">Realtime Logs</span>
+              </div>
+              <div class="audit-feed" id="dashboardAuditFeed">
+                <div class="loading-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading audits...</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Appointments Table Preview -->
+          <div class="glass-card mt-4">
+            <div class="card-header">
+              <h3><i class="fa-solid fa-calendar-check"></i> Recent Appointments (3-Table JOIN)</h3>
+              <button class="btn btn-sm btn-ghost" onclick="switchView('appointments')">View All <i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+            <div class="table-responsive">
+              <table class="custom-table" id="dashboardAppointmentsTable">
+                <thead>
+                  <tr>
+                    <th>Patient</th>
+                    <th>Doctor</th>
+                    <th>Specialization</th>
+                    <th>Date & Time</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboardAppointmentsBody">
+                  <tr><td colspan="5" class="text-center">Loading appointments...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. PATIENTS VIEW -->
+        <section id="view-patients" class="view-section">
+          <div class="view-header">
+            <div>
+              <h2>Patient Management</h2>
+              <p class="text-muted">Create, view, update, and manage all patient demographics</p>
+            </div>
+            <button class="btn btn-primary" onclick="openModal('patientModal')">
+              <i class="fa-solid fa-plus"></i> Add New Patient
+            </button>
+          </div>
+
+          <div class="table-toolbar">
+            <div class="search-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="patientSearchInput" placeholder="Search by name, phone, city..." oninput="filterPatients()">
+            </div>
+            <div class="filter-group">
+              <select id="patientGenderFilter" onchange="filterPatients()">
+                <option value="">All Genders</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="glass-card">
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Patient Name</th>
+                    <th>Gender</th>
+                    <th>Age</th>
+                    <th>Phone</th>
+                    <th>Address</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="patientsTableBody">
+                  <!-- Dynamic rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. DOCTORS VIEW -->
+        <section id="view-doctors" class="view-section">
+          <div class="view-header">
+            <div>
+              <h2>Doctor Directory</h2>
+              <p class="text-muted">Manage hospital specialists, departments, and schedules</p>
+            </div>
+            <button class="btn btn-primary" onclick="openModal('doctorModal')">
+              <i class="fa-solid fa-user-doctor"></i> Add New Doctor
+            </button>
+          </div>
+
+          <div class="table-toolbar">
+            <div class="search-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="doctorSearchInput" placeholder="Search doctor name, specialty..." oninput="filterDoctors()">
+            </div>
+          </div>
+
+          <div class="doctors-grid" id="doctorsGridContainer">
+            <!-- Dynamic doctor cards -->
+          </div>
+        </section>
+
+        <!-- 4. APPOINTMENTS VIEW -->
+        <section id="view-appointments" class="view-section">
+          <div class="view-header">
+            <div>
+              <h2>Appointment Scheduling</h2>
+              <p class="text-muted">Multi-table relational bookings with automated audit triggers</p>
+            </div>
+            <button class="btn btn-primary" onclick="openModal('appointmentModal')">
+              <i class="fa-solid fa-calendar-plus"></i> Book Appointment
+            </button>
+          </div>
+
+          <div class="table-toolbar">
+            <div class="search-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="appointmentSearchInput" placeholder="Filter by patient or doctor..." oninput="filterAppointments()">
+            </div>
+            <div class="filter-group">
+              <select id="appointmentStatusFilter" onchange="filterAppointments()">
+                <option value="">All Statuses</option>
+                <option value="Scheduled">Scheduled</option>
+                <option value="Completed">Completed</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="glass-card">
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Patient</th>
+                    <th>Doctor</th>
+                    <th>Specialty</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                    <th>Quick Action</th>
+                  </tr>
+                </thead>
+                <tbody id="appointmentsTableBody">
+                  <!-- Dynamic rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. BILLING VIEW -->
+        <section id="view-billing" class="view-section">
+          <div class="view-header">
+            <div>
+              <h2>Billing & Invoice Management</h2>
+              <p class="text-muted">Invoices with automated bill date assignment trigger</p>
+            </div>
+            <button class="btn btn-primary" onclick="openModal('billingModal')">
+              <i class="fa-solid fa-receipt"></i> Generate New Bill
+            </button>
+          </div>
+
+          <div class="billing-summary-banner">
+            <div class="summary-item">
+              <span class="label">Total Generated</span>
+              <h4 id="billBannerTotal">₹0.00</h4>
+            </div>
+            <div class="summary-item">
+              <span class="label">Collected (Paid)</span>
+              <h4 class="text-success" id="billBannerPaid">₹0.00</h4>
+            </div>
+            <div class="summary-item">
+              <span class="label">Pending Payments</span>
+              <h4 class="text-warning" id="billBannerPending">₹0.00</h4>
+            </div>
+          </div>
+
+          <div class="glass-card">
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Bill ID</th>
+                    <th>Patient Name</th>
+                    <th>Amount (₹)</th>
+                    <th>Bill Date</th>
+                    <th>Payment Status</th>
+                    <th>Update Status</th>
+                  </tr>
+                </thead>
+                <tbody id="billingTableBody">
+                  <!-- Dynamic rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6. MEDICAL RECORDS VIEW -->
+        <section id="view-records" class="view-section">
+          <div class="view-header">
+            <div>
+              <h2>Medical Records & History</h2>
+              <p class="text-muted">Clinical diagnoses, prescriptions, and physician remarks</p>
+            </div>
+            <button class="btn btn-primary" onclick="openModal('recordModal')">
+              <i class="fa-solid fa-file-medical"></i> Add Medical Record
+            </button>
+          </div>
+
+          <div class="records-grid" id="recordsGridContainer">
+            <!-- Dynamic record cards -->
+          </div>
+        </section>
+
+        <!-- 7. REPORTS & ANALYTICS VIEW -->
+        <section id="view-reports" class="view-section">
+          <div class="view-header">
+            <div>
+              <h2>DBMS Reports & Triggers Center</h2>
+              <p class="text-muted">Complex JOIN queries, aggregations, and Trigger Audit inspects</p>
+            </div>
+          </div>
+
+          <div class="reports-container">
+            <!-- Report Tab 1: Patients Above 40 -->
+            <div class="glass-card">
+              <div class="card-header">
+                <h3><i class="fa-solid fa-filter"></i> Filtered Query: Patients Above 40 Years Old</h3>
+                <span class="tag">SQL: WHERE age > 40</span>
+              </div>
+              <div class="table-responsive">
+                <table class="custom-table">
+                  <thead>
+                    <tr>
+                      <th>Patient Name</th>
+                      <th>Age</th>
+                      <th>Gender</th>
+                      <th>Phone</th>
+                      <th>Address</th>
+                    </tr>
+                  </thead>
+                  <tbody id="patientsAbove40TableBody">
+                    <!-- Dynamic -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Report Tab 2: Trigger Audit Log (Appointment_Audit) -->
+            <div class="glass-card mt-4">
+              <div class="card-header">
+                <h3><i class="fa-solid fa-database"></i> Trigger Audit Table (Appointment_Audit)</h3>
+                <span class="tag tag-accent">AFTER INSERT TRIGGER</span>
+              </div>
+              <div class="table-responsive">
+                <table class="custom-table">
+                  <thead>
+                    <tr>
+                      <th>Audit ID</th>
+                      <th>Appointment ID</th>
+                      <th>Audit Message</th>
+                      <th>Trigger Timestamp</th>
+                    </tr>
+                  </thead>
+                  <tbody id="auditsTableBody">
+                    <!-- Dynamic -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- 1. Patient Modal (Add & Edit) -->
+  <div class="modal-overlay" id="patientModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="patientModalTitle">Add New Patient</h3>
+        <button class="modal-close" onclick="closeModal('patientModal')">&times;</button>
+      </div>
+      <form id="patientForm" onsubmit="savePatient(event)">
+        <input type="hidden" id="patientFormId">
+        <div class="form-group">
+          <label for="patientName">Full Name *</label>
+          <input type="text" id="patientName" required placeholder="e.g. Ramesh Chandra">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="patientGender">Gender *</label>
+            <select id="patientGender" required>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="patientAge">Age *</label>
+            <input type="number" id="patientAge" min="1" max="130" required placeholder="35">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="patientPhone">Phone Number *</label>
+          <input type="tel" id="patientPhone" required placeholder="9876543210">
+        </div>
+        <div class="form-group">
+          <label for="patientAddress">Address *</label>
+          <input type="text" id="patientAddress" required placeholder="e.g. Lucknow">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('patientModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Patient</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Doctor Modal (Add & Edit) -->
+  <div class="modal-overlay" id="doctorModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="doctorModalTitle">Add New Doctor</h3>
+        <button class="modal-close" onclick="closeModal('doctorModal')">&times;</button>
+      </div>
+      <form id="doctorForm" onsubmit="saveDoctor(event)">
+        <input type="hidden" id="doctorFormId">
+        <div class="form-group">
+          <label for="doctorName">Doctor Name *</label>
+          <input type="text" id="doctorName" required placeholder="e.g. Dr. Rajesh Khanna">
+        </div>
+        <div class="form-group">
+          <label for="doctorSpecialty">Specialization *</label>
+          <input type="text" id="doctorSpecialty" required placeholder="e.g. Cardiologist, Neurologist">
+        </div>
+        <div class="form-group">
+          <label for="doctorPhone">Phone Number *</label>
+          <input type="tel" id="doctorPhone" required placeholder="9123456780">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('doctorModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Doctor</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Appointment Modal -->
+  <div class="modal-overlay" id="appointmentModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Book Appointment</h3>
+        <button class="modal-close" onclick="closeModal('appointmentModal')">&times;</button>
+      </div>
+      <form id="appointmentForm" onsubmit="saveAppointment(event)">
+        <div class="form-group">
+          <label for="appPatientSelect">Select Patient *</label>
+          <select id="appPatientSelect" required>
+            <option value="">-- Choose Patient --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="appDoctorSelect">Select Doctor *</label>
+          <select id="appDoctorSelect" required>
+            <option value="">-- Choose Doctor --</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="appDate">Appointment Date *</label>
+            <input type="date" id="appDate" required>
+          </div>
+          <div class="form-group">
+            <label for="appTime">Appointment Time *</label>
+            <input type="time" id="appTime" step="1" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="appStatus">Initial Status</label>
+          <select id="appStatus">
+            <option value="Scheduled">Scheduled</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('appointmentModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Book & Trigger Audit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. Billing Modal -->
+  <div class="modal-overlay" id="billingModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Generate Invoice / Bill</h3>
+        <button class="modal-close" onclick="closeModal('billingModal')">&times;</button>
+      </div>
+      <form id="billingForm" onsubmit="saveBill(event)">
+        <div class="form-group">
+          <label for="billPatientSelect">Select Patient *</label>
+          <select id="billPatientSelect" required>
+            <option value="">-- Choose Patient --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="billAmount">Amount (₹) *</label>
+          <input type="number" step="0.01" id="billAmount" min="1" required placeholder="2500.00">
+        </div>
+        <div class="form-group">
+          <label for="billPaymentStatus">Payment Status</label>
+          <select id="billPaymentStatus">
+            <option value="Pending">Pending</option>
+            <option value="Paid">Paid</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="billDate">Bill Date (Leave empty for Trigger Auto-Date)</label>
+          <input type="date" id="billDate" placeholder="Auto assigned by Trigger">
+          <small class="text-muted"><i class="fa-solid fa-sparkles"></i> If empty, MySQL trigger sets today's date automatically.</small>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('billingModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Invoice</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. Medical Record Modal -->
+  <div class="modal-overlay" id="recordModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Add Clinical Record</h3>
+        <button class="modal-close" onclick="closeModal('recordModal')">&times;</button>
+      </div>
+      <form id="recordForm" onsubmit="saveRecord(event)">
+        <div class="form-group">
+          <label for="recPatientSelect">Select Patient *</label>
+          <select id="recPatientSelect" required>
+            <option value="">-- Choose Patient --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="recDoctorSelect">Attending Doctor *</label>
+          <select id="recDoctorSelect" required>
+            <option value="">-- Choose Doctor --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="recDiagnosis">Diagnosis Details *</label>
+          <input type="text" id="recDiagnosis" required placeholder="e.g. Acute Bronchitis, Hypertension">
+        </div>
+        <div class="form-group">
+          <label for="recTreatment">Treatment & Medication *</label>
+          <textarea id="recTreatment" rows="3" required placeholder="e.g. Prescribed Azithromycin 500mg, rest for 3 days..."></textarea>
+        </div>
+        <div class="form-group">
+          <label for="recDate">Record Date</label>
+          <input type="date" id="recDate">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('recordModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Record</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- JavaScript -->
+  <script src="js/app.js"></script>
+</body>
+</html>
